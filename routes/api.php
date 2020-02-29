@@ -16,3 +16,14 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::namespace('Api')->group(function() {
+	//for creating account
+    Route::post('/register','AccountsController@create');
+    //for funding
+    Route::post('/fund','AccountsController@credit');
+    //for withdrawing
+    Route::post('/withdraw','AccountsController@debit');
+
+    Route::post('/update', 'AccountsController@update');
+});
+
