@@ -32,7 +32,7 @@ class AccountsController extends Controller
         	return response()->json(['message'=>'can\'t set this account up']);
         }
     	// return response
-    	return response()->json(['success'=>'account created successfully','account_no'=>$user->account->account_no, 'account_name'=>$user->account->account_name,'account_type'=>$user->account->account_type,'available_balance'=>$user->account->available_balance],200);
+    	return response()->json(['success'=>'account created successfully','account_no'=>$user->account->account_no, 'account_name'=>$user->account->account_name,'account_type'=>$user->account->account_type,'available_balance'=>$user->account->available_balance],201);
 
     }
 
@@ -49,10 +49,36 @@ class AccountsController extends Controller
     	}
 
     	$update = $account->update([
-    		'available_balance'=> $request->amount
+    		'available_balance'=> (int) $account->available_balance + $request->amount
     	]);
 
-    	return response()->json(['success'=>'account created successfully','account_no'=>$account->account_no, 'account_name'=>$account->account_name,'account_type'=>$account->account_type,'available_balance'=>$account->available_balance],200);
+    	return response()->json(['success'=>'transaction completed successfully','account_no'=>$account->account_no, 'account_name'=>$account->account_name,'account_type'=>$account->account_type,'available_balance'=>$account->available_balance],200);
+    }
+
+    public function debit(Request $request){
+    	//validate request
+    	$request->validate([
+    		'pin' => 'required|numeric',
+    		'amount' => 'required|numeric'
+    	]);
+
+    	// check if user pin exist
+    	$user = User::where('pin',$request->pin)->first();
+    	if(!$user){
+    		return response()->json(['message'=>'incorect pin']);
+    	}
+
+    	//break if balance is less than requested amount
+    	if($user->account->available_balance < $request->amount){
+    		return response()->json(['message'=>'insufficient fund']);
+    	}
+
+    	//else update
+    	$update = $user->account->update([
+    		'available_balance'=> (int) $user->account->available_balance - $request->amount
+    	]);
+
+    	return response()->json(['success'=>'transaction completed successfully','account_no'=>$user->account->account_no, 'account_name'=>$user->account->account_name,'account_type'=>$user->account->account_type,'available_balance'=>$user->account->available_balance],200);
     }
 
 
