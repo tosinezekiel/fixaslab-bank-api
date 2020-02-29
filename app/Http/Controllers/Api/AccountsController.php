@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\User;
+use App\Account;
 
 class AccountsController extends Controller
 {
@@ -33,6 +34,25 @@ class AccountsController extends Controller
     	// return response
     	return response()->json(['success'=>'account created successfully','account_no'=>$user->account->account_no, 'account_name'=>$user->account->account_name,'account_type'=>$user->account->account_type,'available_balance'=>$user->account->available_balance],200);
 
+    }
+
+    public function credit(Request $request){
+    	$request->validate([
+    		'sender' => 'required|string',
+    		'account_no' => 'required|string|min:10|max:10',
+    		'amount' => 'required|numeric',
+    	]);
+
+    	$account = Account::where('account_no',$request->account_no)->first();
+    	if(!$account){
+    		return response()->json(['message'=>'sorry we cannot find a user with the privided account no/account name'],404);
+    	}
+
+    	$update = $account->update([
+    		'available_balance'=> $request->amount
+    	]);
+
+    	return response()->json(['success'=>'account created successfully','account_no'=>$account->account_no, 'account_name'=>$account->account_name,'account_type'=>$account->account_type,'available_balance'=>$account->available_balance],200);
     }
 
 

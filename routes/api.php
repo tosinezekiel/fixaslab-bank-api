@@ -20,7 +20,7 @@ Route::namespace('Api')->group(function() {
 	//for creating account
     Route::post('/register','AccountsController@create');
     //for funding
-    Route::post('/fund','AccountsController@credit');
+    Route::post('/credit','AccountsController@credit');
     //for withdrawing
     Route::post('/withdraw','AccountsController@debit');
 
